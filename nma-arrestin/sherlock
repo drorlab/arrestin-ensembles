@@ -1,0 +1,29 @@
+import mdtraj as md
+from nma import ANMA
+import os
+import argparse
+
+DIRNAME = "./pdb_final"
+NUM_MODES = 3
+
+def compute_nma(filename, rmsd):
+    pdb = md.load_pdb(f'{DIRNAME}/{filename}')
+    print(f'Computing NMA for {filename} ...')
+    anmas = [ANMA(mode=i, rmsd=rmsd, n_steps=50, selection='all') for i in range(NUM_MODES)]
+    trajs = [anma.fit_transform(pdb) for anma in anmas]
+    for traj in trajs:
+        traj.save(f'./trajectories/{filename[:-4]}_{rmsd}.xtc')
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('rmsd', help='Compute NMA on pdb files using provided rmsd',
+            type=float)
+    args = parser.parse_args()
+    rmsd = args.rmsd
+    for filename in os.listdir(DIRNAME):
+        if filename.endswith('.pdb'):
+            compute_nma(filename, rmsd)
+
+if __name__ == '__main__':
+    main()

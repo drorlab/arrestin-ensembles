@@ -3,6 +3,21 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+*.xtc
+*.pdb
+*.dcd
+*.png
+*.out
+*.gro
+*.chk
+*.pkl
+*.tga
+*.gif
+*.jpg
+*.psf
+*.npz
+
 # C extensions
 *.so
 

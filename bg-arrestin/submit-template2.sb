@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#SBATCH --time=7-00:00
+#SBATCH --mem=24G
+#SBATCH --partition=rondror
+#SBATCH --gres gpu:1
+#SBATCH --constraint=GPU_MEM:24GB
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=jmcavity@stanford.edu
+#SBATCH --dependency=singleton
+#SBATCH --job-name=bgflow-test-2
+
+module load gcc/8.1.0
+module load cuda/11.1
+source /home/users/jmcavity/miniconda3/etc/profile.d/conda.sh
+conda activate $ENVS/bgflow
+conda list
+echo $CUDA_HOME
+
+python arrestin.py --num_epochs 60 --random_seed 2 --outfile "arrestin_centered_new"
+#python arrestin.py --num_epochs 10 --random_seed 2
+#python arrestin.py --num_samples 100 --num_epochs 30 --random_seed 3
+#python arrestin.py --num_samples 100 --num_epochs 10 --random_seed 4
+
+

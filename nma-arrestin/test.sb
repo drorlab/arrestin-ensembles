@@ -1,0 +1,16 @@
+#!/bin/bash
+##SBATCH --time=24:00:00
+#SBATCH --mem=20G
+#SBATCH --partition=rondror
+#SBATCH --gres gpu:1
+#SBATCH --constraint=GPU_MEM:12GB
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=jmcavity@stanford.edu
+##SBATCH --qos=high_p
+module load gcc/8.1.0
+
+python nma.py 1
+python nma.py 2
+python nma.py 3
+python nma.py 4
+python nma.py 5
