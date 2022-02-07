@@ -17,7 +17,7 @@ conda activate $ENVS/bgflow
 conda list
 echo $CUDA_HOME
 
-python arrestin.py --num_epochs 10 --random_seed 8 --outfile "arrestin_centered_new" 
+python arrestin_ca.py --num_epochs 10 --random_seed 8 --outfile "arrestin_ca_first" 
 #python arrestin.py --num_epochs 10 --random_seed 2
 #python arrestin.py --num_samples 100 --num_epochs 30 --random_seed 3
 #python arrestin.py --num_samples 100 --num_epochs 10 --random_seed 4

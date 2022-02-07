@@ -13,11 +13,25 @@ def main():
 
     u = md.Universe(top, traj)
     ca = u.select_atoms("name CA")
+    prev = None
+    bond_list = []
+    for c in ca.indices:
+        if prev:
+            bond_list.append((prev, c))
+        prev = c
+    u.add_bonds(bond_list)
 
-    outfile = traj[:-4] + "_CA" + traj[-4:]
-    with md.Writer(outfile, ca.n_atoms) as W:
-        for ts in u.trajectory:
-            W.write(ca)
+    u_ca = md.Merge(ca)
+
+    outfile = traj[:-4] + "_CA_bonds" + traj[-4:]
+    if traj[-4:] == ".pdb":
+        u_ca.atoms.write(outfile)
+    else:
+        with md.Writer(outfile, ca.n_atoms) as W:
+            for ts in u.trajectory:
+                W.write(ca.atoms)
+            
+            
 
 
 

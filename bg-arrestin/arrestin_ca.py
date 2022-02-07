@@ -62,9 +62,9 @@ to_array = lambda x: x.detach().cpu().numpy()
 # In[5]:
 
 
-from bgmol.datasets import ArrestinActive
+from bgmol.datasets import ArrestinActiveCA
 
-dataset = ArrestinActive()
+dataset = ArrestinActiveCA()
 dataset.read()
 
 
@@ -127,7 +127,7 @@ show_trajectory(data[:10])
 # Topology of the system
 top = dataset.system.mdtraj_topology
 # The following atoms will be treated with cartesian coordinates.
-selection = 'name C N CA or (resname ACE and name C CH3 H1) or (resname NME and name C N H1)'
+selection = 'name CA'
 # Define the factory.
 factory = ZMatrixFactory(top, cartesian=top.select(selection))
 # Build the internal representation from templates defined in yaml files.
@@ -251,7 +251,7 @@ marginal_estimate = bg.InternalCoordinateMarginals(
     angle_lower=0.05, angle_upper=1.0, angle_mu=0.6, angle_sigma=1.0,
 )
 builder.add_map_to_ic_domains(marginal_estimate)
-builder.add_map_to_cartesian(coordinate_transform, fixed_origin_and_rotation=True)
+#builder.add_map_to_cartesian(coordinate_transform, fixed_origin_and_rotation=True)
 
 print(builder.current_dims)
 generator = builder.build_generator()
@@ -378,50 +378,7 @@ out = f"output/{args.outfile}_{args.num_samples}s_{args.num_epochs_nll}plus{args
 evaluate(generator, out)
 
 
-# ### Training with Mixture of NLL and Reverse KLD
-
-# In[23]:
 
 
-constrain = lambda x: 1e4 - torch.nn.functional.elu(1e4 - x)
-
-
-# In[24]:
-
-
-n_epochs = args.num_epochs
-kld_weight = 0.2
-nll_weight = 1.0 - kld_weight
-num_iters = 0
-
-if args.read_checkpoint and statefile != "" and state.loop == 2:
-    num_iters = state.epoch
-    generator = state.generator
-
-for epoch in tqdm(range(num_iters, n_epochs)):
-    # --- data based training ---
-    print(f"Num epochs completed: {num_iters}", flush=True)
-    if args.write_checkpoint and num_iters % 5 == 4:
-        with open(f"generator_states/{run_info}{num_iters}epoch_loop2.pkl", "wb") as f:
-            pickle.dump({"generator": generator, "epoch": num_iters, "loop": 2}, f)
-    for batch, in tqdm(trainloader):
-        optimizer.zero_grad()
-        batch = batch.to(device)
-        try:
-            nll = generator.energy(batch).mean()
-            kld = constrain(generator.kldiv(trainloader.batch_size)).mean()
-            loss = nll_weight * nll + kld_weight * kld
-            loss.backward()
-        except:
-            print('Loss calculation failed.')
-        optimizer.step()
-        print(loss.item(), end="\r")
-    num_iters += 1
-
-
-# In[25]:
-
-out = f"output/{args.outfile}_{args.num_samples}s_{args.num_epochs_nll}plus{args.num_epochs}e_mixed_sigma0.1_{args.random_seed}"
-evaluate(generator, out)
 
 
